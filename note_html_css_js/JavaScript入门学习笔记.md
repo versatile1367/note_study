@@ -32,8 +32,10 @@
    }
    return i;  //返回10
    ```
+   
+9. 变量声明时如果不使用`var` 关键字，那么它就是一个全局变量，即使它在函数内定义。
 
-
+   
 
 ### HTML DOM事件：
 
@@ -874,4 +876,210 @@
    <p id="pos">尾部定位点</p>
    ```
 
+
+
+
+### js函数
+
+1. 函数声明：
+
+   ```js
+   function functionName(parameters) {
+     执行的代码
+   }
+   ```
+
+2. 函数表达式存储在变量后变量也可作为一个函数使用：
+
+   ```js
+   var x = function (a, b) {return a * b};
+   var z = x(4, 3);
+   ```
+
+3. 函数也可以通过内置的js函数构造器定义：
+
+   ```js
+   var myFunction = new Function("a", "b", "return a * b");
    
+   var x = myFunction(4, 3);
+   ```
+
+   ```js
+   var myFunction = function (a, b) {return a * b};
+   
+   var x = myFunction(4, 3);
+   ```
+
+4. 提升也应用在函数，可以先使用再声明函数
+
+   ```js
+   myFunction(5);
+   
+   function myFunction(y) {
+       return y * y;
+   }
+   ```
+
+5. **函数表达式**可以自调用，自调用表达式会自动调用，如果表达式后面紧跟（），则会自动调用，不能自调用**声明的函数**，通过添加括号，来说明它是一个函数表达式。
+
+   实际上是一个匿名自我调用的函数（无函数名）：
+
+   ```js
+   (function () {
+       var x = "Hello!!";      // 我将调用自己
+   })();
+   ```
+
+6. 函数是一个对象：
+
+   - `typeof` 来判断函数类型将返回`function`
+   - 函数是一个对象，有属性和方法。
+   - `arguments.length` 返回函数调用过程中接收到的参数个数
+   - `toString()` 方法将函数作为一个字符串返回
+
+7. 箭头函数（类似lamdba表达式）(es6新增)：
+
+   ```js
+   (参数1, 参数2, …, 参数N) => { 函数声明 }
+   
+   (参数1, 参数2, …, 参数N) => 表达式(单一)
+   // 相当于：(参数1, 参数2, …, 参数N) =>{ return 表达式; }
+   
+   (单一参数) => {函数声明}
+   单一参数 => {函数声明}
+   
+   () => {函数声明}
+   ```
+
+   例子：
+
+   ```js
+   const x = (x, y) => x * y;
+   ```
+
+8. 箭头函数会默认绑定外层的this值，所以箭头函数中this的值和外层的this是一样的，箭头函数**不可以提升**，需要使用前定义。`const` 比`var` 更安全，因为函数表达式始终是一个常量。
+
+   ```js
+   const x = (x, y) => { return x * y };
+   document.getElementById("demo").innerHTML = x(5, 5); //25
+   ```
+
+9. es5中如果函数调用时未提供隐式参数，则参数会默认设置为：`undefined`
+
+   ```js
+   function myFunction(x, y) {
+       if (y === undefined) {
+             y = 0;
+       } 
+   }
+   function myFunction(x, y) {
+       y = y || 0;
+   }
+   ```
+
+10. es6可以自带参数，类似`java`
+
+11. 函数有个内置的对象`arguments` 对象，包含了函数调用的参数数组。`arguments[i]` ,`arguments.length` 
+
+12. 修改对象对象属性在函数外是可见的，而值传递的参数在函数外不可见，不会修改显式参数的在函数外定义的初始值。（类似cpp的值传递和地址传递）
+
+13. 函数调用：
+
+    - 作为函数调用，会自动变为window对象的函数：
+
+      ```js
+      function myFunction(a, b) {
+          return a * b;
+      }
+      window.myFunction(10, 2);    // window.myFunction(10, 2) 返回 20
+      
+      function myFunction() {
+          return this;
+      }
+      myFunction();                // 返回 window 对象
+      ```
+
+    - 作为方法调用，函数属于对象，this的值为函数所在的对象：
+
+      ```js
+      var myObject = {
+          firstName:"John",
+          lastName: "Doe",
+          fullName: function () {
+              return this;
+          }
+      }
+      myObject.fullName();          // 返回 [object Object] (所有者对象)
+      ```
+
+    - 使用构造函数调用函数：
+
+      ```js
+      // 构造函数:
+      function myFunction(arg1, arg2) {
+          this.firstName = arg1;
+          this.lastName  = arg2;
+      }
+       
+      // This    creates a new object
+      var x = new myFunction("John","Doe");
+      x.firstName;                             // 返回 "John"
+      ```
+
+      构造函数的调用会创建一个新的对象。新对象会继承构造函数的属性和方法。构造函数中 **this** 关键字没有任何的值。**this** 的值在函数调用实例化对象(new object)时创建.
+
+    - 作为函数方法调用函数：
+
+      **call()** 和 **apply()** 是预定义的函数方法。 两个方法可用于调用函数，两个方法的第一个参数必须是对象本身。
+
+      ```js
+      function myFunction(a, b) {
+          return a * b;
+      }
+      myObject = myFunction.call(myObject, 10, 2);     // 返回 20
+      ```
+
+      ```js
+      function myFunction(a, b) {
+          return a * b;
+      }
+      myArray = [10, 2];
+      myObject = myFunction.apply(myObject, myArray);  // 返回 20
+      ```
+
+      两个方法都使用了对象本身作为第一个参数。 两者的区别在于第二个参数： apply传入的是一个参数数组，也就是将多个参数组合成为一个数组传入，而call则作为call的参数传入（从第二个参数开始）。
+
+      在 JavaScript 严格模式(strict mode)下, 在调用函数时第一个参数会成为 **this** 的值， 即使该参数不是一个对象。
+
+      在 JavaScript 非严格模式(non-strict mode)下, 如果第一个参数的值是 null 或 undefined, 它将使用全局对象替代。
+
+    
+
+    
+
+    ### js闭包
+
+    1. 变量add指定了函数自我调用返回字值，自我调用函数只执行一次，设置计数器为0。这时add可以作为一个函数使用，可以访问函数上一层作用域的计数器。
+
+       使得**函数拥有私有变量**，计数器受匿名函数的作用域保护，只能通过add修改。
+
+       闭包是一种保护私有变量的机制，在函数执行时形成私有的作用域，保护里面的私有变量不受外界干扰。
+
+       直观的说就是形成一个不销毁的栈环境。
+
+       ```js
+       var add = (function () {
+           var counter = 0;
+           return function () {return counter += 1;}
+       })();
+        
+       add();
+       add();
+       add();
+        
+       // 计数器为 3
+       ```
+
+       
+
+    
