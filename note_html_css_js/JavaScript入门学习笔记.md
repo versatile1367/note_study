@@ -8,6 +8,8 @@
 
 
 
+## js基础
+
 ### 变量与作用域
 
 1. 在函数外声明的变量是**全局变量**，网页上的**所有脚本和函数**都能访问它
@@ -1055,31 +1057,228 @@
 
     
 
+### js闭包
+
+1. 变量add指定了函数自我调用返回字值，自我调用函数只执行一次，设置计数器为0。这时add可以作为一个函数使用，可以访问函数上一层作用域的计数器。
+
+   使得**函数拥有私有变量**，计数器受匿名函数的作用域保护，只能通过add修改。
+
+   闭包是一种保护私有变量的机制，在函数执行时形成私有的作用域，保护里面的私有变量不受外界干扰。
+
+   直观的说就是形成一个不销毁的栈环境。
+
+   ```js
+   var add = (function () {
+       var counter = 0;
+       return function () {return counter += 1;}
+   })();
     
-
-    ### js闭包
-
-    1. 变量add指定了函数自我调用返回字值，自我调用函数只执行一次，设置计数器为0。这时add可以作为一个函数使用，可以访问函数上一层作用域的计数器。
-
-       使得**函数拥有私有变量**，计数器受匿名函数的作用域保护，只能通过add修改。
-
-       闭包是一种保护私有变量的机制，在函数执行时形成私有的作用域，保护里面的私有变量不受外界干扰。
-
-       直观的说就是形成一个不销毁的栈环境。
-
-       ```js
-       var add = (function () {
-           var counter = 0;
-           return function () {return counter += 1;}
-       })();
-        
-       add();
-       add();
-       add();
-        
-       // 计数器为 3
-       ```
-
-       
-
+   add();
+   add();
+   add();
     
+   // 计数器为 3
+   ```
+
+
+
+## js高级特性
+
+### js对象
+
+1. 所有事物都是对象，对象是带有属性和方法的特殊数据类型
+
+2. 创建直接的实例
+
+   ```js
+   person=new Object();
+   person.firstname="John";
+   person.lastname="Doe";
+   person.age=50;
+   person.eyecolor="blue";
+   
+   //等同于：
+   person={firstname:"John",lastname:"Doe",age:50,eyecolor:"blue"};
+   ```
+
+3. 使用函数来创造对象：
+
+   ```js
+   function person(firstname,lastname,age,eyecolor){
+   	this.firstname=firstname;
+   	this.lastname=lastname;
+   	this.age=age;
+     this.eyecolor=eyecolor;
+   }
+   var myFather=new person("John","Doe",50,"blue");
+   var myMother=new person("Sally","Rally",48,"green");
+   ```
+
+4. 可以把属性添加到js对象：
+
+   ```js
+   //假设perspn对象已存在
+   person.firstname="John";
+   person.lastname="Doe";
+   ```
+
+5. 但是一个**已存在的对象构造器**中是不能添加新属性的
+
+6. 把方法添加到js对象，方法是附加在对象上的函数，在构造器函数内部定义对象的方法：
+
+   ```js
+   function person(firstname,lastname,age,eyecolor)
+   {
+       this.firstname=firstname;
+       this.lastname=lastname;
+       this.age=age;
+       this.eyecolor=eyecolor;
+   
+       this.changeName=changeName;
+       function changeName(name)
+       {
+           this.lastname=name;
+       }
+   }
+   
+   myMother.changeName("Doe");
+   ```
+
+7. 利用for……in循环遍历对象的属性：
+
+   ```js
+   var person={fname:"John",lname:"Doe",age:25}; 
+    
+   for (x in person)
+   {
+       txt=txt + person[x];
+   }
+   ```
+
+
+
+### js prototype
+
+1. 所有的 JavaScript 对象都会从一个 prototype（原型对象）中继承属性和方法
+
+   - `Date` 对象从 `Date.prototype` 继承。
+   - `Array` 对象从 `Array.prototype` 继承。
+   - `Person` 对象从 `Person.prototype` 继承。
+
+2. JavaScript 对象有一个**指向一个原型对象的链**。当试图访问一个对象的属性时，它不仅仅在该对象上搜寻，还会搜寻该对象的原型，以及该对象的原型的原型，依次层层向上搜索，直到找到一个名字匹配的属性或到达原型链的末尾
+
+3. 利用**`prototype` 属性**可以给对象的构造函数添加新的属性：
+
+   ```js
+   Person.prototype.nationality = "English";
+   ```
+
+4. 利用**`prototype` 属性**可以给对象的构造函数添加新的方法：
+
+   ```js
+   Person.prototype.name = function() {
+     return this.firstName + " " + this.lastName;
+   };
+   ```
+
+   
+
+### Number对象
+
+1. 所有数字都是浮点类型，64位
+
+2. 整数最多为15位，小数最大位数是17位，但是浮点运算并不总是100%精准
+
+3. 如果前缀为 0，则 JavaScript 会把数值常量解释为八进制数，如果前缀为 0 和 "x"，则解释为十六进制数。
+
+4. 输入不同进制：
+
+   ```js
+   var myNumber=128;
+   myNumber.toString(16);   // 返回 80
+   myNumber.toString(8);    // 返回 200
+   myNumber.toString(2);    // 返回 10000000
+   ```
+
+5. 无穷大：
+
+   `Infinity` 和`-Infinity`
+
+6. `NaN` :非数字值，可以Number对象设置为改值。`isNaN()` 来判断
+
+   ```js
+   var x = 1000 / "Apple";
+   isNaN(x); // 返回 true
+   var y = 100 / "1000";
+   isNaN(y); // 返回 false
+   ```
+
+7. 数字可以是数字或者对象。
+
+   ```js
+   var x = 123;
+   var y = new Number(123);
+   typeof(x) // 返回 Number
+   typeof(y) // 返回 Object
+   ```
+
+8. Number的属性和方法：https://www.runoob.com/js/js-obj-number.html
+
+
+
+### String对象
+
+1. 查找字符串`indexOf（）` 来定位首次出现的位置。
+
+   ```js
+   var str="Hello world, welcome to the universe.";
+   var n=str.indexOf("welcome");
+   ```
+
+   没找到返回-1
+
+2. `match()` 进行查找，找到返回这个字符
+
+3. 其余很多用法和java都很类似
+
+4. 属性和方法：https://www.runoob.com/js/js-obj-string.html
+
+
+
+### Date对象
+
+1. 获取日期时间：
+
+   ```js
+   var d=new Date();
+   document.write(d); //Wed Jul 08 2020 16:48:26 GMT+0800 (中国标准时间)
+   ```
+
+2. 获取年份：`getFullYear()`
+
+3. 获取星期：`getDay()`
+
+4. Date对象参考手册：https://www.runoob.com/jsref/jsref-obj-date.html
+
+
+
+### Array对象
+
+1. 创建数组：
+
+   ```js
+   //方法一
+   var myCars=new Array();
+   myCars[0]="Saab";      
+   myCars[1]="Volvo";
+   //方法二
+   var myCars=new Array("Saab","Volvo","BMW");
+   //方法三
+   var myCars=["Saab","Volvo","BMW"];
+   ```
+
+2. 可以在**一个数组中有不同的变量类型**！
+
+3. 完整参考手册：https://www.runoob.com/jsref/jsref-obj-array.html
+
+   

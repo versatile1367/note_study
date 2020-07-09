@@ -300,3 +300,23 @@
 
 
 
+### git重命名文件
+
+1. 重命名文件：
+
+   `git mv lodname newname`
+
+2. `-u` 来更新已经追踪的文件和文件夹
+
+   `git add -u newname`
+
+3. 提交重命名操作
+
+   `git commit -m "comment"`
+
+4. 提交
+
+   `git push origin master`
+
+   
+
