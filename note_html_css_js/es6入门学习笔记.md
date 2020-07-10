@@ -522,10 +522,6 @@
 
 
 
-### Proxy
-
-1. 一个 Proxy 对象由两个部分组成： target 、 handler 。在通过 Proxy 构造函数生成实例对象时，需要提供这两个参数。 target 即目标对象， handler 是一个对象，声明了代理 target 的指定行为。
-
 
 
 ### 字符串
@@ -908,4 +904,175 @@
    ```
 
    
+
+
+
+### Promise对象
+
+1. 是一个容器，里面保存着某个未来才会结束的事件（通常是一个异步操作）的结果。
+
+2. 特点：
+
+   - 对象的状态不受外界影响。`Promise`对象代表一个异步操作，有三种状态：`pending`（进行中）、`fulfilled`（已成功）和`rejected`（已失败）。只有异步操作的结果，可以决定当前是哪一种状态，任何其他操作都无法改变这个状态。
+   - 一旦状态改变，就不会再变，任何时候都可以得到这个结果。`Promise`对象的状态改变，只有两种可能：从`pending`变为`fulfilled`和从`pending`变为`rejected`。只要这两种情况发生，状态就凝固了，不会再变了，会一直保持这个结果，这时就称为 resolved（已定型）。如果改变已经发生了，再对`Promise`对象添加回调函数，也会立即得到这个结果。这与事件（Event）完全不同，事件的特点是，如果你错过了它，再去监听，是得不到结果的。
+
+3. 无法取消`Promise`，一旦新建它就会立即执行，无法中途取消。
+
+4. 如果不设置回调函数，`Promise`内部抛出的错误，不会反应到外部。
+
+5. 创造`promise` ：
+
+   ```js
+   const promise = new Promise(function(resolve, reject) {
+     // ... some code
+   
+     if (/* 异步操作成功 */){
+       resolve(value);
+     } else {
+       reject(error);
+     }
+   });
+   ```
+
+   - 两个参数分别是`resolve`和`reject`。它们是两个函数，由 JavaScript 引擎提供
+
+6. `Promise` 实例生成以后，可以用`then` 方法指定`resolve` 和`rejected` 状态的回掉函数
+
+   ```js
+   promise.then(function(value) {
+     // success
+   }, function(error) {
+     // failure
+   });
+   ```
+
+7. 例子：
+
+   ```js
+   function timeout(ms) {
+     return new Promise((resolve, reject) => {
+       setTimeout(resolve, ms, 'done');
+     });
+   }
+   
+   timeout(100).then((value) => {
+     console.log(value);
+   });
+   ```
+
+   ```js
+   let promise = new Promise(function(resolve, reject) {
+     console.log('Promise');
+     resolve();
+   });
+   
+   promise.then(function() {
+     console.log('resolved.');
+   });
+   
+   console.log('Hi!');
+   
+   // Promise
+   // Hi!
+   // resolved
+   ```
+
+8. 如果调用`resolve`函数和`reject`函数时带有参数，那么它们的参数会被传递给回调函数。`reject`函数的参数通常是`Error`对象的实例，表示抛出的错误；`resolve`函数的参数除了正常的值以外，还可能是另一个 Promise 实例
+
+   ```js
+   const p1 = new Promise(function (resolve, reject) {
+     setTimeout(() => reject(new Error('fail')), 3000)
+   })
+   
+   const p2 = new Promise(function (resolve, reject) {
+     setTimeout(() => resolve(p1), 1000)
+   })
+   
+   p2
+     .then(result => console.log(result))
+     .catch(error => console.log(error))
+   // Error: fail
+   ```
+
+9. **注意**，立即 resolved 的 Promise 是在本轮事件循环的末尾执行，总是晚于本轮循环的同步任务。
+
+   ```js
+   new Promise((resolve, reject) => {
+     resolve(1);
+     console.log(2);
+   }).then(r => {
+     console.log(r);
+   });
+   // 2
+   // 1
+   
+   new Promise((resolve, reject) => {
+     return resolve(1);
+     // 后面的语句不会执行
+     console.log(2);
+   })
+   ```
+
+10. `then`方法返回的是一个新的`Promise`实例（注意，不是原来那个`Promise`实例）。因此可以采用链式写法，即`then`方法后面再调用另一个`then`方法:
+
+    ```js
+    //第一个回调函数完成以后，会将返回结果作为参数，传入第二个回调函数。
+    getJSON("/posts.json").then(function(json) {
+      return json.post;
+    }).then(function(post) {
+      // ...
+    });
+    //第二个例子
+    getJSON("/post/1.json").then(function(post) {
+      return getJSON(post.commentURL);
+    }).then(function (comments) {
+      console.log("resolved: ", comments);
+    }, function (err){
+      console.log("rejected: ", err);
+    });
+    ```
+
+    第二个例子中，第一个`then`方法指定的回调函数，返回的是另一个`Promise`对象。这时，第二个`then`方法指定的回调函数，就会等待这个新的`Promise`对象状态发生变化。如果变为`resolved`，就调用第一个回调函数，如果状态变为`rejected`，就调用第二个回调函数。
+
+11. `Promise.prototype.catch()`方法
+
+    - 是`.then(null, rejection)`或`.then(undefined, rejection)`的别名，用于指定发生错误时的回调函数。
+
+      ```js
+      getJSON('/posts.json').then(function(posts) {
+        // ...
+      }).catch(function(error) {
+        // 处理 getJSON 和 前一个回调函数运行时发生的错误
+        console.log('发生错误！', error);
+      });
+      ```
+
+    - 如果 Promise 状态已经变成`resolved`，再抛出错误是无效的。因为 Promise 的状态一旦改变，就永久保持该状态，不会再变了。
+
+      ```js
+      const promise = new Promise(function(resolve, reject) {
+        resolve('ok');
+        throw new Error('test');
+      });
+      promise
+        .then(function(value) { console.log(value) })
+        .catch(function(error) { console.log(error) });
+      // ok
+      ```
+
+    - Promise 对象的错误具有“冒泡”性质，会一直向后传递，直到被捕获为止。也就是说，错误总是会被下一个`catch`语句捕获。
+
+      ```js
+      getJSON('/post/1.json').then(function(post) {
+        return getJSON(post.commentURL);
+      }).then(function(comments) {
+        // some code
+      }).catch(function(error) {
+        // 处理前面三个Promise产生的错误
+      });
+      ```
+
+    - 如果没有使用`catch()`方法指定错误处理的回调函数，Promise 对象抛出的错误不会传递到外层代码，即不会有任何反应。Promise 内部的错误不会影响到 Promise 外部的代码.
+    
+    - 
 
