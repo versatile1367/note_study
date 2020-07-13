@@ -1074,5 +1074,173 @@
 
     - 如果没有使用`catch()`方法指定错误处理的回调函数，Promise 对象抛出的错误不会传递到外层代码，即不会有任何反应。Promise 内部的错误不会影响到 Promise 外部的代码.
     
-    - 
+12. `Promise.prototype.finally()`
 
+    - 指定不管 Promise 对象最后状态如何，都会执行的操作
+
+      ```js
+      promise
+      .then(result => {···})
+      .catch(error => {···})
+      .finally(() => {···});
+      ```
+
+13. `Promise.all()`
+
+    - 将多个 Promise 实例，包装成一个新的 Promise 实例
+
+      ```js
+      const p = Promise.all([p1, p2, p3]);
+      ```
+
+    - 方法的参数可以不是数组，但必须具有 Iterator 接口，且返回的每个成员都是 Promise 实例
+
+    - 如果参数不是promise实例，就会先调用下面讲到的`Promise.resolve`方法，将参数转为 Promise 实例
+
+    - 关于最终结果的状体：
+
+      （1）只有`p1`、`p2`、`p3`的状态都变成`fulfilled`，`p`的状态才会变成`fulfilled`，此时`p1`、`p2`、`p3`的返回值组成一个数组，传递给`p`的回调函数。
+
+      （2）只要`p1`、`p2`、`p3`之中有一个被`rejected`，`p`的状态就变成`rejected`，此时第一个被`reject`的实例的返回值，会传递给`p`的回调函数。
+
+14. `Promise.race()` 方法
+
+    - 同样是将多个 Promise 实例，包装成一个新的 Promise 实例。
+
+      ```js
+      const p = Promise.race([p1, p2, p3]);
+      ```
+
+      只要`p1`、`p2`、`p3`之中有一个实例率先改变状态，`p`的状态就跟着改变。那个率先改变的 Promise 实例的返回值，就传递给`p`的回调函数。
+
+    - 方法的参数与`Promise.all()`方法一样，如果不是 Promise 实例，就会先调用下面讲到的`Promise.resolve()`方法，将参数转为 Promise 实例，再进一步处理。
+
+15. `Promise.allSettled()`方法：
+
+    - 接受一组 Promise 实例作为参数，包装成一个新的 Promise 实例。只有等到所有这些参数实例都返回结果，不管是`fulfilled`还是`rejected`，包装实例才会结束。
+    - 结束后返回的promise实例状态总是`fulfilled`，不会变成`rejected`。状态变成`fulfilled`后，Promise 的监听函数接收到的参数是一个数组，每个成员对应一个传入`Promise.allSettled()`的 Promise 实例。
+
+16. `Promise.any()`方法：
+
+    - 接受一组 Promise 实例作为参数，包装成一个新的 Promise 实例。只要参数实例有一个变成`fulfilled`状态，包装实例就会变成`fulfilled`状态；如果所有参数实例都变成`rejected`状态，包装实例就会变成`rejected`状态。
+
+17. `Promise.resolve()`方法：
+
+    - 将现有对象转为 Promise 对象
+
+      ```js
+      Promise.resolve('foo')
+      // 等价于
+      new Promise(resolve => resolve('foo'))
+      ```
+
+    - 参数有以下四种情况：
+
+      - 参数是一个 Promise 实例
+
+        不做任何修改、原封不动地返回这个实例。
+
+      - 参数是一个`thenable`对象(`thenable`对象指的是具有`then`方法的对象)
+
+        ```javascript
+        let thenable = {
+          then: function(resolve, reject) {
+            resolve(42);
+          }
+        };
+        
+        let p1 = Promise.resolve(thenable);
+        p1.then(function(value) {
+          console.log(value);  // 42
+        });
+        ```
+
+      - 参数不是具有`then`方法的对象，或根本就不是对象
+
+        ```javascript
+        const p = Promise.resolve('Hello');
+        
+        p.then(function (s){
+          console.log(s)
+        });
+        // Hello
+        ```
+
+      - 不带有任何参数
+
+        ```javascript
+        const p = Promise.resolve();
+        
+        p.then(function () {
+          // ...
+        });
+        ```
+
+18. `Promise.reject()` 方法：
+
+    - 返回一个新的 Promise 实例，该实例的状态为`rejected`。
+
+    - `Promise.reject()`方法的参数，会原封不动地作为`reject`的理由，变成后续方法的参数
+
+      ```js
+      const p = Promise.reject('出错了');
+      // 等同于
+      const p = new Promise((resolve, reject) => reject('出错了'))
+      
+      p.then(null, function (s) {
+        console.log(s)
+      });
+      // 出错了
+      ```
+
+19. `Promise.try()`方法：
+
+    - 让同步函数同步执行，异步函数异步执行，并且让它们具有统一的 API 
+
+    ```javascript
+    Promise.try(() => database.users.get({id: userId}))
+      .then(...)
+      .catch(...)
+    ```
+
+
+
+### Iterator
+
+1. 任何数据结构只要部署 Iterator 接口，就可以完成遍历操作（即依次处理该数据结构的所有成员）
+
+2. 默认的 Iterator 接口部署在数据结构的`Symbol.iterator`属性，或者说，一个数据结构只要具有`Symbol.iterator`属性，就可以认为是“可遍历的”
+
+3. 例如数组的Symbol.iterator属性：
+
+   ```javascript
+   let arr = ['a', 'b', 'c'];
+   let iter = arr[Symbol.iterator]();
+   
+   iter.next() // { value: 'a', done: false }
+   iter.next() // { value: 'b', done: false }
+   iter.next() // { value: 'c', done: false }
+   iter.next() // { value: undefined, done: true }
+   ```
+
+
+
+### async函数
+
+1. Generator 函数的语法糖。
+
+2. `async`函数返回一个 Promise 对象，可以使用`then`方法添加回调函数。当函数执行的时候，一旦遇到`await`就会先返回，等到异步操作完成，再接着执行函数体内后面的语句。
+
+   ```javascript
+   async function getStockPriceByName(name) {
+     const symbol = await getStockSymbol(name);
+     const stockPrice = await getStockPrice(symbol);
+     return stockPrice;
+   }
+   
+   getStockPriceByName('goog').then(function (result) {
+     console.log(result);
+   });
+   ```
+
+   
