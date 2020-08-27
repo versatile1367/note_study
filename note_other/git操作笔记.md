@@ -283,26 +283,6 @@
    
 
 
-
-### 问题解决
-
-1. `git push` 提示
-
-   "error: failed to push some refs to "
-
-   <img src="img/企业微信截图_a61fb9d5-a24e-42e4-95e2-53d200f911fd.png" alt="企业微信截图_a61fb9d5-a24e-42e4-95e2-53d200f911fd" style="zoom:50%;" align='left'/>
-
-   因为github远程库中已经有更改的内容，但是本地库中并没有更新，所以现需要pull下来。所以需要把远程库中的更新合并到本地库中，–rebase的作用是取消掉本地库中刚刚的commit，并把他们接到更新后的版本库之中。
-
-   **解决：**
-
-   `git pull --rebase origin master`
-
-   
-
-
-
-
 ### git重命名文件
 
 1. 重命名文件：
@@ -322,4 +302,44 @@
    `git push origin master`
 
    
+
+
+
+### 问题解决
+
+####  `git push` 提示
+
+"error: failed to push some refs to "
+
+<img src="img/企业微信截图_a61fb9d5-a24e-42e4-95e2-53d200f911fd.png" alt="企业微信截图_a61fb9d5-a24e-42e4-95e2-53d200f911fd" style="zoom:50%;" align='left'/>
+
+因为github远程库中已经有更改的内容，但是本地库中并没有更新，所以现需要pull下来。所以需要把远程库中的更新合并到本地库中，–rebase的作用是取消掉本地库中刚刚的commit，并把他们接到更新后的版本库之中。
+
+**解决：**
+
+`git pull --rebase origin master`
+
+
+
+#### 远程仓库文件夹无法点开
+
+因为该文件夹下嵌套着一层git仓库，所以需要把里面的这一层仓库删掉。
+
+1. `git rm -r --cached "myFolder"`
+
+   删除缓存中的这个文件夹，记得加cached，不然本地也没了
+
+2. `git commit -m "update"`
+
+   提交这次更新
+
+3. `git push origin master`
+
+   push后远程仓库这个文件夹就没有了
+
+4. 然后在本地文件夹中找到这个文件夹中隐藏的.git文件夹，删掉
+
+   mac下的快捷键显示隐藏文件夹：`cmd+shift+.` 
+
+5. 然后再一次`add/commit/push`
 

@@ -8,7 +8,7 @@
 
 ## export
 
-用于从文件（或者模块）中到处函数、对象或者基础类型。
+用于从文件（或者模块）中导出函数、对象或者基础类型。
 
 比如我们在component文件夹下面封装好的组件，想要在container中利用。就需要用export。
 
@@ -60,6 +60,8 @@ import cube from './mylib';
 
 
 
+
+
 ## import
 
 与上文的`export` 相对应。用于导入
@@ -85,6 +87,8 @@ import myDefault from 'my-module';
 //混合导入
 import myDefault, {foo, bar} from 'my-module';
 ```
+
+
 
 
 
@@ -188,4 +192,10 @@ interface Person {
     [propName: string]: any;
 }
 ```
+
+
+
+
+
+
 
